@@ -9,6 +9,9 @@ import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 import YouTubeSettings from '@/components/YouTubeSettings';
 import RoleBadge from '@/components/RoleBadge';
+import SMMIntegration from '@/components/SMMIntegration';
+import SubscriptionSystem from '@/components/SubscriptionSystem';
+import ModerationPanel from '@/components/ModerationPanel';
 
 interface Stream {
   id: number;
@@ -63,6 +66,9 @@ const Index = () => {
   const [youtubeVideoId, setYoutubeVideoId] = useState('jfKfPfyJRdk');
   const [playingArchiveVideo, setPlayingArchiveVideo] = useState<number | null>(null);
   const [showYouTubeSettings, setShowYouTubeSettings] = useState(false);
+  const [showSMMPanel, setShowSMMPanel] = useState(false);
+  const [showSubscriptions, setShowSubscriptions] = useState(false);
+  const [showModeration, setShowModeration] = useState(false);
   const [recentDonations, setRecentDonations] = useState<DonationAlert[]>([
     { id: 1, name: 'ProGamer99', amount: 500, message: 'Лучший стример! 🔥' },
     { id: 2, name: 'MegaFan', amount: 1000, message: 'За новое оборудование!' },
@@ -388,20 +394,53 @@ const Index = () => {
 
               <div className="flex items-center gap-4">
                 {isLoggedIn ? (
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Button
                       onClick={() => setShowYouTubeSettings(!showYouTubeSettings)}
                       variant="outline"
+                      size="sm"
                       className="border-gaming-orange/50 text-white hover:bg-gaming-orange/20"
+                      title="Настройки YouTube"
                     >
-                      <Icon name="Settings" size={20} />
+                      <Icon name="Settings" size={18} />
                     </Button>
+                    <Button
+                      onClick={() => setShowSMMPanel(!showSMMPanel)}
+                      variant="outline"
+                      size="sm"
+                      className="border-purple-500/50 text-white hover:bg-purple-500/20"
+                      title="SMM Интеграции"
+                    >
+                      <Icon name="Share2" size={18} />
+                    </Button>
+                    <Button
+                      onClick={() => setShowSubscriptions(!showSubscriptions)}
+                      variant="outline"
+                      size="sm"
+                      className="border-gaming-yellow/50 text-white hover:bg-gaming-yellow/20"
+                      title="Подписки"
+                    >
+                      <Icon name="Gem" size={18} />
+                    </Button>
+                    {(userRole === 'owner' || userRole === 'moderator') && (
+                      <Button
+                        onClick={() => setShowModeration(!showModeration)}
+                        variant="outline"
+                        size="sm"
+                        className="border-green-500/50 text-white hover:bg-green-500/20"
+                        title="Модерация"
+                      >
+                        <Icon name="Shield" size={18} />
+                      </Button>
+                    )}
                     <Button
                       onClick={toggleNotifications}
                       variant="outline"
+                      size="sm"
                       className={`border-gaming-yellow/50 ${streamNotifications ? 'bg-gaming-yellow/20 text-gaming-yellow' : 'text-white'} hover:bg-gaming-yellow/30`}
+                      title="Уведомления"
                     >
-                      <Icon name={streamNotifications ? 'Bell' : 'BellOff'} size={20} />
+                      <Icon name={streamNotifications ? 'Bell' : 'BellOff'} size={18} />
                     </Button>
                     <div className="flex items-center gap-2 bg-gaming-red/20 border border-gaming-red/50 rounded-lg px-4 py-2">
                       <Icon name="User" size={20} className="text-gaming-yellow" />
@@ -545,6 +584,30 @@ const Index = () => {
                 setShowLivePlayer(false);
               }}
             />
+          </div>
+        )}
+
+        {showSMMPanel && isLoggedIn && (
+          <div className="container mx-auto px-4 py-6 animate-slide-up">
+            <SMMIntegration />
+          </div>
+        )}
+
+        {showSubscriptions && (
+          <div className="container mx-auto px-4 py-6 animate-slide-up">
+            <SubscriptionSystem 
+              currentTier={userRole === 'subscriber' ? 'subscriber' : userRole === 'vip' ? 'vip' : 'free'}
+              onSubscribe={(tierId) => {
+                if (tierId === 'subscriber') setUserRole('subscriber');
+                if (tierId === 'vip') setUserRole('vip');
+              }}
+            />
+          </div>
+        )}
+
+        {showModeration && isLoggedIn && (userRole === 'owner' || userRole === 'moderator') && (
+          <div className="container mx-auto px-4 py-6 animate-slide-up">
+            <ModerationPanel userRole={userRole} />
           </div>
         )}
 
