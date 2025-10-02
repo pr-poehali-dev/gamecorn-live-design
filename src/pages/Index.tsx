@@ -15,6 +15,7 @@ import ModerationPanel from '@/components/ModerationPanel';
 import DonationWidget, { Donation } from '@/components/DonationWidget';
 import DonationAlert from '@/components/DonationAlert';
 import OAuthLogin from '@/components/OAuthLogin';
+import AdminPanel from '@/components/AdminPanel';
 
 interface Stream {
   id: number;
@@ -81,6 +82,7 @@ const Index = () => {
   const [currentDonationAlert, setCurrentDonationAlert] = useState<Donation | null>(null);
   const [showDonationWidget, setShowDonationWidget] = useState(false);
   const [showOAuthLogin, setShowOAuthLogin] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   const upcomingStreams: Stream[] = [
     {
@@ -281,11 +283,28 @@ const Index = () => {
       toast.error('Заполните все поля!');
       return;
     }
+
+    const adminEmail = 'hawks_tv@outlook.com';
+    const adminPassword = '1l1e1x1a11A';
+
+    if (loginEmail.toLowerCase() === adminEmail && loginPassword === adminPassword) {
+      setIsLoggedIn(true);
+      setUsername('Hawks_TV');
+      setUserRole('owner');
+      setLoginEmail('');
+      setLoginPassword('');
+      
+      toast.success('🎉 Добро пожаловать, Администратор! 👑', {
+        description: 'Полный доступ ко всем функциям управления сайтом',
+        duration: 5000,
+      });
+      return;
+    }
+
     setIsLoggedIn(true);
     const name = loginEmail.split('@')[0];
     setUsername(name);
     
-    // Определяем роль на основе email (для демонстрации)
     if (loginEmail.includes('owner') || loginEmail.includes('admin')) {
       setUserRole('owner');
       toast.success(`Владелец канала ${name} вошел в систему! 👑`, {
@@ -492,15 +511,28 @@ const Index = () => {
                       <Icon name="Gem" size={18} />
                     </Button>
                     {(userRole === 'owner' || userRole === 'moderator') && (
-                      <Button
-                        onClick={() => setShowModeration(!showModeration)}
-                        variant="outline"
-                        size="sm"
-                        className="border-green-500/50 text-white hover:bg-green-500/20"
-                        title="Модерация"
-                      >
-                        <Icon name="Shield" size={18} />
-                      </Button>
+                      <>
+                        <Button
+                          onClick={() => setShowModeration(!showModeration)}
+                          variant="outline"
+                          size="sm"
+                          className="border-green-500/50 text-white hover:bg-green-500/20"
+                          title="Модерация"
+                        >
+                          <Icon name="Shield" size={18} />
+                        </Button>
+                        {userRole === 'owner' && username === 'Hawks_TV' && (
+                          <Button
+                            onClick={() => setShowAdminPanel(!showAdminPanel)}
+                            variant="outline"
+                            size="sm"
+                            className="border-gaming-yellow/50 bg-gaming-yellow/10 text-gaming-yellow hover:bg-gaming-yellow/20 animate-pulse"
+                            title="Панель администратора"
+                          >
+                            <Icon name="Crown" size={18} />
+                          </Button>
+                        )}
+                      </>
                     )}
                     <Button
                       onClick={toggleNotifications}
@@ -672,6 +704,12 @@ const Index = () => {
             </div>
           </div>
         </nav>
+
+        {showAdminPanel && isLoggedIn && userRole === 'owner' && username === 'Hawks_TV' && (
+          <div className="container mx-auto px-4 py-6 animate-slide-up">
+            <AdminPanel userEmail={loginEmail || 'hawks_tv@outlook.com'} />
+          </div>
+        )}
 
         {showYouTubeSettings && isLoggedIn && (
           <div className="container mx-auto px-4 py-6 animate-slide-up">
