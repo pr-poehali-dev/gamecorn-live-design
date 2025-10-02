@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 
@@ -18,6 +19,15 @@ interface Stream {
   viewers?: number;
   duration?: string;
   views?: number;
+  likes: number;
+  comments: Comment[];
+}
+
+interface Comment {
+  id: number;
+  username: string;
+  text: string;
+  timestamp: string;
 }
 
 interface DonationAlert {
@@ -40,6 +50,9 @@ const Index = () => {
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerUsername, setRegisterUsername] = useState('');
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [newComment, setNewComment] = useState('');
+  const [likedStreams, setLikedStreams] = useState<Set<number>>(new Set());
+  const [streamNotifications, setStreamNotifications] = useState(true);
   const [recentDonations, setRecentDonations] = useState<DonationAlert[]>([
     { id: 1, name: 'ProGamer99', amount: 500, message: 'Лучший стример! 🔥' },
     { id: 2, name: 'MegaFan', amount: 1000, message: 'За новое оборудование!' },
@@ -73,7 +86,7 @@ const Index = () => {
     }
   ];
 
-  const archivedStreams: Stream[] = [
+  const [archivedStreams, setArchivedStreams] = useState<Stream[]>([
     {
       id: 101,
       title: 'Elden Ring - Полное прохождение',
@@ -82,7 +95,12 @@ const Index = () => {
       time: '3 дня назад',
       thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
       duration: '4:32:15',
-      views: 12400
+      views: 12400,
+      likes: 342,
+      comments: [
+        { id: 1, username: 'MegaGamer', text: 'Лучший стрим! 🔥', timestamp: '2 часа назад' },
+        { id: 2, username: 'ProPlayer99', text: 'Когда следующий?', timestamp: '1 час назад' }
+      ]
     },
     {
       id: 102,
@@ -92,7 +110,9 @@ const Index = () => {
       time: '5 дней назад',
       thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
       duration: '2:15:30',
-      views: 8900
+      views: 8900,
+      likes: 267,
+      comments: []
     },
     {
       id: 103,
@@ -102,7 +122,9 @@ const Index = () => {
       time: '1 неделю назад',
       thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
       duration: '3:45:22',
-      views: 15600
+      views: 15600,
+      likes: 489,
+      comments: []
     },
     {
       id: 104,
@@ -112,7 +134,9 @@ const Index = () => {
       time: '2 недели назад',
       thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
       duration: '5:12:45',
-      views: 21300
+      views: 21300,
+      likes: 623,
+      comments: []
     },
     {
       id: 105,
@@ -122,7 +146,9 @@ const Index = () => {
       time: '2 недели назад',
       thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
       duration: '6:20:10',
-      views: 18700
+      views: 18700,
+      likes: 534,
+      comments: []
     },
     {
       id: 106,
@@ -132,11 +158,13 @@ const Index = () => {
       time: '3 недели назад',
       thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
       duration: '4:05:33',
-      views: 9800
+      views: 9800,
+      likes: 298,
+      comments: []
     }
-  ];
+  ]);
 
-  const liveStream: Stream = {
+  const [liveStream, setLiveStream] = useState<Stream>({
     id: 0,
     title: 'Elden Ring - Битва с боссом',
     game: 'Elden Ring',
@@ -144,8 +172,13 @@ const Index = () => {
     time: 'В эфире',
     thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
     isLive: true,
-    viewers: 1247
-  };
+    viewers: 1247,
+    likes: 856,
+    comments: [
+      { id: 1, username: 'StreamFan', text: 'Невероятный геймплей!', timestamp: '5 мин назад' },
+      { id: 2, username: 'GamerPro', text: 'Побей босса!', timestamp: '2 мин назад' }
+    ]
+  });
 
   const handleDonation = () => {
     if (!donationName || !donationAmount) {
@@ -202,6 +235,83 @@ const Index = () => {
     toast.success('Вы вышли из аккаунта');
   };
 
+  const handleLike = (streamId: number) => {
+    if (!isLoggedIn) {
+      toast.error('Войдите, чтобы поставить лайк!');
+      return;
+    }
+
+    const newLiked = new Set(likedStreams);
+    const isLiked = likedStreams.has(streamId);
+
+    if (isLiked) {
+      newLiked.delete(streamId);
+      toast.success('Лайк убран');
+    } else {
+      newLiked.add(streamId);
+      toast.success('Лайк поставлен! ❤️');
+    }
+
+    setLikedStreams(newLiked);
+
+    if (streamId === 0) {
+      setLiveStream(prev => ({
+        ...prev,
+        likes: prev.likes + (isLiked ? -1 : 1)
+      }));
+    } else {
+      setArchivedStreams(prev => prev.map(stream => 
+        stream.id === streamId 
+          ? { ...stream, likes: stream.likes + (isLiked ? -1 : 1) }
+          : stream
+      ));
+    }
+  };
+
+  const handleAddComment = (streamId: number) => {
+    if (!isLoggedIn) {
+      toast.error('Войдите, чтобы комментировать!');
+      return;
+    }
+
+    if (!newComment.trim()) {
+      toast.error('Напишите комментарий!');
+      return;
+    }
+
+    const comment: Comment = {
+      id: Date.now(),
+      username: username,
+      text: newComment,
+      timestamp: 'Только что'
+    };
+
+    if (streamId === 0) {
+      setLiveStream(prev => ({
+        ...prev,
+        comments: [...prev.comments, comment]
+      }));
+    } else {
+      setArchivedStreams(prev => prev.map(stream => 
+        stream.id === streamId 
+          ? { ...stream, comments: [...stream.comments, comment] }
+          : stream
+      ));
+    }
+
+    toast.success('Комментарий добавлен!');
+    setNewComment('');
+  };
+
+  const toggleNotifications = () => {
+    if (!isLoggedIn) {
+      toast.error('Войдите, чтобы включить уведомления!');
+      return;
+    }
+    setStreamNotifications(!streamNotifications);
+    toast.success(streamNotifications ? 'Уведомления отключены' : 'Уведомления включены! 🔔');
+  };
+
   return (
     <div className="min-h-screen bg-gaming-dark">
       <div 
@@ -234,6 +344,13 @@ const Index = () => {
               <div className="flex items-center gap-4">
                 {isLoggedIn ? (
                   <div className="flex items-center gap-4">
+                    <Button
+                      onClick={toggleNotifications}
+                      variant="outline"
+                      className={`border-gaming-yellow/50 ${streamNotifications ? 'bg-gaming-yellow/20 text-gaming-yellow' : 'text-white'} hover:bg-gaming-yellow/30`}
+                    >
+                      <Icon name={streamNotifications ? 'Bell' : 'BellOff'} size={20} />
+                    </Button>
                     <div className="flex items-center gap-2 bg-gaming-red/20 border border-gaming-red/50 rounded-lg px-4 py-2">
                       <Icon name="User" size={20} className="text-gaming-yellow" />
                       <span className="text-white font-bold">{username}</span>
@@ -399,12 +516,65 @@ const Index = () => {
                   </p>
                 </div>
 
-                <Button 
-                  size="lg" 
-                  className="bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold px-8 py-6 text-xl w-full md:w-auto"
+                <div className="flex gap-3">
+                  <Button 
+                    size="lg" 
+                    className="bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold px-8 py-6 text-xl flex-1"
+                  >
+                    <Icon name="Play" className="mr-3" size={24} />
+                    Смотреть
+                  </Button>
+                  <Button
+                    onClick={() => handleLike(0)}
+                    size="lg"
+                    className={`${likedStreams.has(0) ? 'bg-gaming-red text-white' : 'bg-black/50 text-white'} hover:bg-gaming-red/80 font-bold px-6 py-6 text-xl`}
+                  >
+                    <Icon name="Heart" className={likedStreams.has(0) ? 'fill-current' : ''} size={24} />
+                  </Button>
+                </div>
+                <div className="flex items-center gap-4 text-gray-300">
+                  <div className="flex items-center gap-2">
+                    <Icon name="Heart" size={20} className="text-gaming-red" />
+                    <span className="font-bold">{liveStream.likes}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Icon name="MessageCircle" size={20} className="text-gaming-yellow" />
+                    <span className="font-bold">{liveStream.comments.length}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 border-t border-gaming-red/30 pt-6">
+              <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <Icon name="MessageCircle" size={24} className="text-gaming-yellow" />
+                Комментарии ({liveStream.comments.length})
+              </h4>
+              <div className="space-y-4 mb-4 max-h-60 overflow-y-auto">
+                {liveStream.comments.map(comment => (
+                  <div key={comment.id} className="bg-black/30 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon name="User" size={16} className="text-gaming-yellow" />
+                      <span className="text-gaming-yellow font-bold">{comment.username}</span>
+                      <span className="text-gray-500 text-sm">• {comment.timestamp}</span>
+                    </div>
+                    <p className="text-white">{comment.text}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Напишите комментарий..."
+                  className="bg-black/50 border-gaming-red/30 text-white flex-1"
+                  rows={2}
+                />
+                <Button
+                  onClick={() => handleAddComment(0)}
+                  className="bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold"
                 >
-                  <Icon name="Play" className="mr-3" size={24} />
-                  Смотреть стрим
+                  <Icon name="Send" size={20} />
                 </Button>
               </div>
             </div>
@@ -514,14 +684,20 @@ const Index = () => {
                     <h4 className="text-white font-bold text-lg mb-3 line-clamp-2">
                       {stream.title}
                     </h4>
-                    <div className="flex items-center justify-between text-gray-400 text-sm">
-                      <div className="flex items-center gap-1">
-                        <Icon name="Eye" size={14} />
-                        <span>{stream.views?.toLocaleString()}</span>
+                    <div className="flex items-center justify-between text-gray-400 text-sm mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <Icon name="Eye" size={14} />
+                          <span>{stream.views?.toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Icon name="Heart" size={14} className="text-gaming-red" />
+                          <span>{stream.likes}</span>
+                        </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Icon name="Clock" size={14} />
-                        <span>{stream.time}</span>
+                        <Icon name="MessageCircle" size={14} className="text-gaming-yellow" />
+                        <span>{stream.comments.length}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -557,26 +733,72 @@ const Index = () => {
                     </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 flex-wrap">
-                  <Badge className="bg-gaming-yellow text-black font-bold px-4 py-2">
-                    {selectedVideo.game}
-                  </Badge>
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <Icon name="Clock" size={18} />
-                    <span className="font-medium">{selectedVideo.duration}</span>
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <Badge className="bg-gaming-yellow text-black font-bold px-4 py-2">
+                      {selectedVideo.game}
+                    </Badge>
+                    <div className="flex items-center gap-2 text-gray-300">
+                      <Icon name="Clock" size={18} />
+                      <span className="font-medium">{selectedVideo.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-300">
+                      <Icon name="Eye" size={18} />
+                      <span className="font-medium">{selectedVideo.views?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Icon name="Calendar" size={18} />
+                      <span>{selectedVideo.date}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <Icon name="Eye" size={18} />
-                    <span className="font-medium">{selectedVideo.views?.toLocaleString()} просмотров</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-400">
-                    <Icon name="Calendar" size={18} />
-                    <span>{selectedVideo.date}</span>
-                  </div>
+                  <Button
+                    onClick={() => handleLike(selectedVideo.id)}
+                    className={`${likedStreams.has(selectedVideo.id) ? 'bg-gaming-red text-white' : 'bg-black/50 text-white border border-gaming-red/30'} hover:bg-gaming-red/80 font-bold px-6 py-2`}
+                  >
+                    <Icon name="Heart" className={likedStreams.has(selectedVideo.id) ? 'fill-current mr-2' : 'mr-2'} size={20} />
+                    {selectedVideo.likes}
+                  </Button>
                 </div>
                 <p className="text-gray-300 text-lg">
                   Эпичный стрим с лучшими моментами! Не пропусти захватывающий геймплей и крутые комментарии.
                 </p>
+                <div className="border-t border-gaming-red/30 pt-4">
+                  <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <Icon name="MessageCircle" size={24} className="text-gaming-yellow" />
+                    Комментарии ({selectedVideo.comments.length})
+                  </h4>
+                  <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
+                    {selectedVideo.comments.length > 0 ? (
+                      selectedVideo.comments.map(comment => (
+                        <div key={comment.id} className="bg-black/30 rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Icon name="User" size={14} className="text-gaming-yellow" />
+                            <span className="text-gaming-yellow font-bold text-sm">{comment.username}</span>
+                            <span className="text-gray-500 text-xs">• {comment.timestamp}</span>
+                          </div>
+                          <p className="text-white text-sm">{comment.text}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 text-center py-4">Будьте первым, кто оставит комментарий!</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Напишите комментарий..."
+                      className="bg-black/50 border-gaming-red/30 text-white flex-1"
+                      rows={2}
+                    />
+                    <Button
+                      onClick={() => handleAddComment(selectedVideo.id)}
+                      className="bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold"
+                    >
+                      <Icon name="Send" size={20} />
+                    </Button>
+                  </div>
+                </div>
               </div>
             )}
           </DialogContent>
