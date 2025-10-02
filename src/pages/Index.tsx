@@ -16,6 +16,7 @@ import DonationWidget, { Donation } from '@/components/DonationWidget';
 import DonationAlert from '@/components/DonationAlert';
 import OAuthLogin from '@/components/OAuthLogin';
 import AdminPanel from '@/components/AdminPanel';
+import UserProfile from '@/components/UserProfile';
 
 interface Stream {
   id: number;
@@ -83,6 +84,7 @@ const Index = () => {
   const [showDonationWidget, setShowDonationWidget] = useState(false);
   const [showOAuthLogin, setShowOAuthLogin] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(false);
 
   const upcomingStreams: Stream[] = [
     {

@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import TwoFactorAuth from './TwoFactorAuth';
+import AnalyticsDashboard from './AnalyticsDashboard';
 
 interface AdminPanelProps {
   userEmail: string;
@@ -97,7 +98,7 @@ const AdminPanel = ({ userEmail }: AdminPanelProps) => {
       </Card>
 
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid grid-cols-2 md:grid-cols-5 gap-2 bg-black/50 p-2">
+        <TabsList className="grid grid-cols-2 md:grid-cols-6 gap-2 bg-black/50 p-2">
           <TabsTrigger value="general" className="data-[state=active]:bg-gaming-red">
             <Icon name="Settings" size={16} className="mr-2" />
             Основные
@@ -105,6 +106,10 @@ const AdminPanel = ({ userEmail }: AdminPanelProps) => {
           <TabsTrigger value="features" className="data-[state=active]:bg-gaming-red">
             <Icon name="Zap" size={16} className="mr-2" />
             Функции
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="data-[state=active]:bg-gaming-red">
+            <Icon name="BarChart3" size={16} className="mr-2" />
+            Аналитика
           </TabsTrigger>
           <TabsTrigger value="security" className="data-[state=active]:bg-gaming-red">
             <Icon name="Shield" size={16} className="mr-2" />
@@ -359,6 +364,10 @@ const AdminPanel = ({ userEmail }: AdminPanelProps) => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          <AnalyticsDashboard />
         </TabsContent>
 
         <TabsContent value="system" className="space-y-4">
