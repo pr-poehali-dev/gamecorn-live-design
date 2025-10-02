@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 import YouTubeSettings from '@/components/YouTubeSettings';
+import RoleBadge from '@/components/RoleBadge';
 
 interface Stream {
   id: number;
@@ -24,11 +25,14 @@ interface Stream {
   comments: Comment[];
 }
 
+type UserRole = 'owner' | 'moderator' | 'vip' | 'subscriber' | 'viewer';
+
 interface Comment {
   id: number;
   username: string;
   text: string;
   timestamp: string;
+  role: UserRole;
 }
 
 interface DonationAlert {
@@ -45,6 +49,7 @@ const Index = () => {
   const [selectedVideo, setSelectedVideo] = useState<Stream | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
+  const [userRole, setUserRole] = useState<UserRole>('viewer');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
@@ -180,8 +185,11 @@ const Index = () => {
     viewers: 1247,
     likes: 856,
     comments: [
-      { id: 1, username: 'StreamFan', text: 'Невероятный геймплей!', timestamp: '5 мин назад' },
-      { id: 2, username: 'GamerPro', text: 'Побей босса!', timestamp: '2 мин назад' }
+      { id: 1, username: 'StreamerPro', text: 'Всем привет! Начинаем турнир 🎮', timestamp: '15 мин назад', role: 'owner' },
+      { id: 2, username: 'ModeratorMax', text: 'Правила в описании! Соблюдайте чат', timestamp: '12 мин назад', role: 'moderator' },
+      { id: 3, username: 'VIP_Player', text: 'Удачи в турнире! 🔥', timestamp: '10 мин назад', role: 'vip' },
+      { id: 4, username: 'SubGamer99', text: 'Круто играешь!', timestamp: '5 мин назад', role: 'subscriber' },
+      { id: 5, username: 'Viewer42', text: 'Когда следующий стрим?', timestamp: '2 мин назад', role: 'viewer' }
     ]
   });
 
@@ -215,8 +223,35 @@ const Index = () => {
       return;
     }
     setIsLoggedIn(true);
-    setUsername(loginEmail.split('@')[0]);
-    toast.success('Вы успешно вошли!');
+    const name = loginEmail.split('@')[0];
+    setUsername(name);
+    
+    // Определяем роль на основе email (для демонстрации)
+    if (loginEmail.includes('owner') || loginEmail.includes('admin')) {
+      setUserRole('owner');
+      toast.success(`Владелец канала ${name} вошел в систему! 👑`, {
+        description: 'Полный доступ ко всем функциям'
+      });
+    } else if (loginEmail.includes('mod')) {
+      setUserRole('moderator');
+      toast.success(`Модератор ${name} на связи! 🛡️`, {
+        description: 'Управление чатом активно'
+      });
+    } else if (loginEmail.includes('vip')) {
+      setUserRole('vip');
+      toast.success(`VIP ${name} присоединился! ⭐`, {
+        description: 'Эксклюзивные привилегии активны'
+      });
+    } else if (loginEmail.includes('sub')) {
+      setUserRole('subscriber');
+      toast.success(`Подписчик ${name} в эфире! 💎`, {
+        description: 'Спасибо за поддержку канала!'
+      });
+    } else {
+      setUserRole('viewer');
+      toast.success(`Добро пожаловать, ${name}! 🎮`);
+    }
+    
     setLoginEmail('');
     setLoginPassword('');
   };
@@ -228,7 +263,10 @@ const Index = () => {
     }
     setIsLoggedIn(true);
     setUsername(registerUsername);
-    toast.success('Регистрация успешна! Добро пожаловать!');
+    setUserRole('viewer'); // Новые пользователи начинают как зрители
+    toast.success(`Регистрация успешна! Добро пожаловать, ${registerUsername}! 🎉`, {
+      description: 'Подпишитесь на канал для дополнительных привилегий!'
+    });
     setRegisterEmail('');
     setRegisterPassword('');
     setRegisterUsername('');
@@ -237,6 +275,7 @@ const Index = () => {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUsername('');
+    setUserRole('viewer');
     toast.success('Вы вышли из аккаунта');
   };
 
@@ -288,7 +327,8 @@ const Index = () => {
       id: Date.now(),
       username: username,
       text: newComment,
-      timestamp: 'Только что'
+      timestamp: 'Только что',
+      role: userRole
     };
 
     if (streamId === 0) {
@@ -366,6 +406,7 @@ const Index = () => {
                     <div className="flex items-center gap-2 bg-gaming-red/20 border border-gaming-red/50 rounded-lg px-4 py-2">
                       <Icon name="User" size={20} className="text-gaming-yellow" />
                       <span className="text-white font-bold">{username}</span>
+                      <RoleBadge role={userRole} size="md" />
                     </div>
                     <Button 
                       onClick={handleLogout}
@@ -596,9 +637,10 @@ const Index = () => {
               <div className="space-y-4 mb-4 max-h-60 overflow-y-auto">
                 {liveStream.comments.map(comment => (
                   <div key={comment.id} className="bg-black/30 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <Icon name="User" size={16} className="text-gaming-yellow" />
                       <span className="text-gaming-yellow font-bold">{comment.username}</span>
+                      <RoleBadge role={comment.role} />
                       <span className="text-gray-500 text-sm">• {comment.timestamp}</span>
                     </div>
                     <p className="text-white">{comment.text}</p>
@@ -827,9 +869,10 @@ const Index = () => {
                     {selectedVideo.comments.length > 0 ? (
                       selectedVideo.comments.map(comment => (
                         <div key={comment.id} className="bg-black/30 rounded-lg p-3">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <Icon name="User" size={14} className="text-gaming-yellow" />
                             <span className="text-gaming-yellow font-bold text-sm">{comment.username}</span>
+                            <RoleBadge role={comment.role} size="sm" />
                             <span className="text-gray-500 text-xs">• {comment.timestamp}</span>
                           </div>
                           <p className="text-white text-sm">{comment.text}</p>

@@ -132,4 +132,21 @@
       0 0 20px rgba(251, 191, 36, 0.8),
       0 0 40px rgba(251, 191, 36, 0.4);
   }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow:
+        0 0 5px rgba(255, 255, 255, 0.2),
+        0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    to {
+      box-shadow:
+        0 0 10px rgba(255, 255, 255, 0.4),
+        0 0 20px rgba(255, 255, 255, 0.2);
+    }
+  }
 }
