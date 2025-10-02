@@ -12,6 +12,8 @@ import RoleBadge from '@/components/RoleBadge';
 import SMMIntegration from '@/components/SMMIntegration';
 import SubscriptionSystem from '@/components/SubscriptionSystem';
 import ModerationPanel from '@/components/ModerationPanel';
+import DonationWidget, { Donation } from '@/components/DonationWidget';
+import DonationAlert from '@/components/DonationAlert';
 
 interface Stream {
   id: number;
@@ -74,6 +76,9 @@ const Index = () => {
     { id: 2, name: 'MegaFan', amount: 1000, message: 'За новое оборудование!' },
     { id: 3, name: 'Анонимус', amount: 250, message: 'Продолжай в том же духе!' }
   ]);
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [currentDonationAlert, setCurrentDonationAlert] = useState<Donation | null>(null);
+  const [showDonationWidget, setShowDonationWidget] = useState(false);
 
   const upcomingStreams: Stream[] = [
     {
@@ -221,6 +226,41 @@ const Index = () => {
     setDonationName('');
     setDonationAmount('');
     setDonationMessage('');
+  };
+
+  const handleNewDonation = (donation: Omit<Donation, 'id' | 'timestamp'>) => {
+    const newDonation: Donation = {
+      ...donation,
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      isPlaying: false,
+    };
+
+    const updatedDonations = [newDonation, ...donations];
+    setDonations(updatedDonations);
+    localStorage.setItem('gamecorn_donations', JSON.stringify(updatedDonations));
+
+    const recentDonationAlert: DonationAlert = {
+      id: newDonation.id,
+      name: newDonation.username,
+      amount: newDonation.amount,
+      message: newDonation.message,
+    };
+    setRecentDonations([recentDonationAlert, ...recentDonations.slice(0, 4)]);
+
+    if (!currentDonationAlert) {
+      setCurrentDonationAlert(newDonation);
+    }
+  };
+
+  const handleDonationAlertComplete = () => {
+    setCurrentDonationAlert(null);
+    const nextDonation = donations.find(d => !d.isPlaying && d.id !== currentDonationAlert?.id);
+    if (nextDonation) {
+      setTimeout(() => {
+        setCurrentDonationAlert(nextDonation);
+      }, 1000);
+    }
   };
 
   const handleLogin = () => {
@@ -745,18 +785,38 @@ const Index = () => {
           </div>
 
           <div className="mb-12 animate-slide-up">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
               <h3 className="text-3xl font-black text-gradient-fire glow-yellow flex items-center gap-3">
                 <Icon name="Flame" size={32} className="text-gaming-orange" />
                 Последние донаты
               </h3>
-              <a href="/auction">
-                <Button className="bg-gradient-to-r from-gaming-yellow to-gaming-orange hover:from-gaming-yellow/80 hover:to-gaming-orange/80 text-black font-bold">
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  onClick={() => setShowDonationWidget(!showDonationWidget)}
+                  className="bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold"
+                >
+                  <Icon name="DollarSign" className="mr-2" size={20} />
+                  Отправить донат
+                </Button>
+                <a href="/auction">
+                  <Button className="bg-gradient-to-r from-gaming-yellow to-gaming-orange hover:from-gaming-yellow/80 hover:to-gaming-orange/80 text-black font-bold">
                   <Icon name="Target" className="mr-2" size={20} />
                   Аукционная рулетка
                 </Button>
               </a>
+              </div>
             </div>
+
+            {showDonationWidget && (
+              <div className="mb-6">
+                <DonationWidget
+                  onDonate={handleNewDonation}
+                  isLoggedIn={isLoggedIn}
+                  username={username}
+                />
+              </div>
+            )}
+
             <div className="grid md:grid-cols-3 gap-4">
               {recentDonations.map((donation, index) => (
                 <Card 
@@ -776,6 +836,30 @@ const Index = () => {
                 </Card>
               ))}
             </div>
+
+            {donations.length > 0 && (
+              <div className="mt-6 p-4 bg-gaming-red/10 border border-gaming-red/30 rounded-lg">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <Icon name="Monitor" size={20} className="text-gaming-yellow" />
+                  <p className="text-white">
+                    <span className="font-bold text-gaming-yellow">{donations.length}</span> донатов в очереди
+                  </p>
+                  <a 
+                    href="/stream-overlay" 
+                    target="_blank"
+                    className="ml-auto"
+                  >
+                    <Button
+                      variant="outline"
+                      className="border-gaming-yellow/50 hover:bg-gaming-yellow/10 text-gaming-yellow"
+                    >
+                      <Icon name="ExternalLink" size={16} className="mr-2" />
+                      Открыть оверлей для OBS
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
@@ -989,6 +1073,13 @@ const Index = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {currentDonationAlert && (
+          <DonationAlert
+            donation={currentDonationAlert}
+            onComplete={handleDonationAlertComplete}
+          />
+        )}
 
         <footer className="bg-black/50 border-t border-gaming-red/30 py-8 mt-16">
           <div className="container mx-auto px-4">
