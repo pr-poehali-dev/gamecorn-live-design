@@ -16,6 +16,8 @@ interface Stream {
   thumbnail: string;
   isLive?: boolean;
   viewers?: number;
+  duration?: string;
+  views?: number;
 }
 
 interface DonationAlert {
@@ -29,6 +31,7 @@ const Index = () => {
   const [donationAmount, setDonationAmount] = useState('');
   const [donationName, setDonationName] = useState('');
   const [donationMessage, setDonationMessage] = useState('');
+  const [selectedVideo, setSelectedVideo] = useState<Stream | null>(null);
   const [recentDonations, setRecentDonations] = useState<DonationAlert[]>([
     { id: 1, name: 'ProGamer99', amount: 500, message: 'Лучший стример! 🔥' },
     { id: 2, name: 'MegaFan', amount: 1000, message: 'За новое оборудование!' },
@@ -59,6 +62,69 @@ const Index = () => {
       date: '17 октября',
       time: '18:00',
       thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg'
+    }
+  ];
+
+  const archivedStreams: Stream[] = [
+    {
+      id: 101,
+      title: 'Elden Ring - Полное прохождение',
+      game: 'Elden Ring',
+      date: '1 октября',
+      time: '3 дня назад',
+      thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
+      duration: '4:32:15',
+      views: 12400
+    },
+    {
+      id: 102,
+      title: 'CS2 - Легендарный камбэк',
+      game: 'Counter-Strike 2',
+      date: '28 сентября',
+      time: '5 дней назад',
+      thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
+      duration: '2:15:30',
+      views: 8900
+    },
+    {
+      id: 103,
+      title: 'Baldurs Gate 3 - Создание персонажа',
+      game: 'Baldurs Gate 3',
+      date: '25 сентября',
+      time: '1 неделю назад',
+      thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
+      duration: '3:45:22',
+      views: 15600
+    },
+    {
+      id: 104,
+      title: 'Cyberpunk 2077 - Сайдквесты',
+      game: 'Cyberpunk 2077',
+      date: '22 сентября',
+      time: '2 недели назад',
+      thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
+      duration: '5:12:45',
+      views: 21300
+    },
+    {
+      id: 105,
+      title: 'Valorant - Турнир с подписчиками',
+      game: 'Valorant',
+      date: '18 сентября',
+      time: '2 недели назад',
+      thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
+      duration: '6:20:10',
+      views: 18700
+    },
+    {
+      id: 106,
+      title: 'Minecraft - Постройка города',
+      game: 'Minecraft',
+      date: '15 сентября',
+      time: '3 недели назад',
+      thumbnail: '/img/c38201ca-b2da-4f4d-b768-4ad45d0b39d0.jpg',
+      duration: '4:05:33',
+      views: 9800
     }
   ];
 
@@ -295,7 +361,107 @@ const Index = () => {
               ))}
             </div>
           </div>
+
+          <div className="animate-slide-up" style={{ animationDelay: '0.6s' }}>
+            <h3 className="text-3xl font-black text-gradient-fire glow-yellow mb-6 flex items-center gap-3">
+              <Icon name="Video" size={32} className="text-gaming-red" />
+              Архив стримов
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              {archivedStreams.map((stream, index) => (
+                <Card 
+                  key={stream.id}
+                  onClick={() => setSelectedVideo(stream)}
+                  className="bg-gradient-to-br from-black/80 to-gaming-dark border-gaming-red/30 hover:border-gaming-orange/50 transition-all duration-300 hover:scale-105 cursor-pointer group overflow-hidden animate-fade-in"
+                  style={{ animationDelay: `${(index + 6) * 0.1}s` }}
+                >
+                  <div className="relative overflow-hidden">
+                    <img 
+                      src={stream.thumbnail}
+                      alt={stream.title}
+                      className="w-full aspect-video object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <Icon name="Play" size={48} className="text-gaming-orange" />
+                    </div>
+                    <Badge className="absolute bottom-3 right-3 bg-black/80 text-white font-bold px-2 py-1 text-xs">
+                      {stream.duration}
+                    </Badge>
+                  </div>
+                  <CardContent className="p-5">
+                    <Badge className="bg-gaming-orange text-white font-bold mb-3 text-xs">
+                      {stream.game}
+                    </Badge>
+                    <h4 className="text-white font-bold text-lg mb-3 line-clamp-2">
+                      {stream.title}
+                    </h4>
+                    <div className="flex items-center justify-between text-gray-400 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Icon name="Eye" size={14} />
+                        <span>{stream.views?.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Icon name="Clock" size={14} />
+                        <span>{stream.time}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
         </section>
+
+        <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
+          <DialogContent className="bg-gaming-dark border-gaming-red/50 max-w-4xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-gradient-fire flex items-center gap-2">
+                <Icon name="Video" size={28} />
+                {selectedVideo?.title}
+              </DialogTitle>
+            </DialogHeader>
+            {selectedVideo && (
+              <div className="space-y-4">
+                <div className="relative rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center">
+                  <img 
+                    src={selectedVideo.thumbnail}
+                    alt={selectedVideo.title}
+                    className="w-full h-full object-cover opacity-50"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Button 
+                      size="lg"
+                      className="bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold px-12 py-8 text-2xl rounded-full"
+                    >
+                      <Icon name="Play" className="mr-3" size={32} />
+                      Смотреть
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 flex-wrap">
+                  <Badge className="bg-gaming-yellow text-black font-bold px-4 py-2">
+                    {selectedVideo.game}
+                  </Badge>
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <Icon name="Clock" size={18} />
+                    <span className="font-medium">{selectedVideo.duration}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <Icon name="Eye" size={18} />
+                    <span className="font-medium">{selectedVideo.views?.toLocaleString()} просмотров</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <Icon name="Calendar" size={18} />
+                    <span>{selectedVideo.date}</span>
+                  </div>
+                </div>
+                <p className="text-gray-300 text-lg">
+                  Эпичный стрим с лучшими моментами! Не пропусти захватывающий геймплей и крутые комментарии.
+                </p>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         <footer className="bg-black/50 border-t border-gaming-red/30 py-8 mt-16">
           <div className="container mx-auto px-4">
