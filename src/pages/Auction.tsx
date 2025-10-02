@@ -84,8 +84,43 @@ const Auction = () => {
   const [newBlockValue, setNewBlockValue] = useState('');
 
   const rouletteRef = useRef<HTMLDivElement>(null);
+  const spinSoundRef = useRef<HTMLAudioElement | null>(null);
+  const winSoundRef = useRef<HTMLAudioElement | null>(null);
 
   const canManageRoulette = userRole === 'owner' || userRole === 'moderator';
+
+  // Инициализация звуков
+  useEffect(() => {
+    // Звук вращения (длинный звук рулетки)
+    spinSoundRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    
+    // Звук выигрыша (приятный звон)
+    winSoundRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    
+    return () => {
+      spinSoundRef.current = null;
+      winSoundRef.current = null;
+    };
+  }, []);
+
+  // Функция для воспроизведения звука вращения
+  const playSpinSound = () => {
+    if (spinSoundRef.current) {
+      spinSoundRef.current.currentTime = 0;
+      spinSoundRef.current.playbackRate = 1.0;
+      spinSoundRef.current.volume = 0.3;
+      spinSoundRef.current.play().catch(() => {});
+    }
+  };
+
+  // Функция для воспроизведения звука выигрыша
+  const playWinSound = () => {
+    if (winSoundRef.current) {
+      winSoundRef.current.currentTime = 0;
+      winSoundRef.current.volume = 0.5;
+      winSoundRef.current.play().catch(() => {});
+    }
+  };
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -153,6 +188,7 @@ const Auction = () => {
     }
 
     setIsSpinning(true);
+    playSpinSound(); // Воспроизводим звук вращения
     
     // Случайный блок-победитель
     const randomIndex = Math.floor(Math.random() * blocks.length);
@@ -179,6 +215,8 @@ const Auction = () => {
         description: `Выпало: ${winningBlock.prize}`,
       });
     } else {
+      playWinSound(); // Воспроизводим звук выигрыша
+      
       winningBets.forEach(bet => {
         const winAmount = bet.amount * winningBlock.value;
         setBalance(prev => prev + winAmount);
