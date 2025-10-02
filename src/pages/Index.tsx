@@ -392,12 +392,17 @@ const Index = () => {
                       GAMECORN LIVE
                     </h1>
                   </a>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-gaming-yellow text-sm font-medium">Игровые стримы каждый день</p>
                     <span className="text-gray-500">•</span>
                     <a href="/auction" className="text-gaming-orange text-sm font-bold hover:text-gaming-yellow transition-colors flex items-center gap-1">
                       <Icon name="Target" size={16} />
                       Аукцион
+                    </a>
+                    <span className="text-gray-500">•</span>
+                    <a href="/about" className="text-gaming-yellow text-sm font-bold hover:text-gaming-orange transition-colors flex items-center gap-1">
+                      <Icon name="Info" size={16} />
+                      О нас
                     </a>
                   </div>
                 </div>
@@ -987,25 +992,70 @@ const Index = () => {
 
         <footer className="bg-black/50 border-t border-gaming-red/30 py-8 mt-16">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-6">
-                <img 
-                  src="https://v3.fal.media/files/koala/8VZiLv1TcltrLPUyszAnz_output.png" 
-                  alt="Steam"
-                  className="w-10 h-10 opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
-                />
-                <img 
-                  src="https://v3.fal.media/files/koala/8VZiLv1TcltrLPUyszAnz_output.png" 
-                  alt="PlayStation"
-                  className="w-10 h-10 opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
-                />
-                <img 
-                  src="https://v3.fal.media/files/koala/8VZiLv1TcltrLPUyszAnz_output.png" 
-                  alt="Xbox"
-                  className="w-10 h-10 opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
-                />
+            <div className="grid md:grid-cols-3 gap-8 mb-6">
+              <div>
+                <h4 className="text-white font-bold mb-3 flex items-center gap-2">
+                  <Icon name="Info" size={18} className="text-gaming-yellow" />
+                  О проекте
+                </h4>
+                <p className="text-gray-400 text-sm mb-3">
+                  GameCorn Live - платформа для игровых стримов с аукционом и донатами
+                </p>
+                <a href="/about" className="text-gaming-yellow hover:text-gaming-orange transition-colors text-sm font-bold">
+                  Узнать больше →
+                </a>
               </div>
-              <p className="text-gray-400">© 2024 GameCorn Live. Все права защищены.</p>
+              <div>
+                <h4 className="text-white font-bold mb-3 flex items-center gap-2">
+                  <Icon name="Navigation" size={18} className="text-gaming-yellow" />
+                  Навигация
+                </h4>
+                <div className="space-y-2">
+                  <a href="/" className="block text-gray-400 hover:text-gaming-yellow transition-colors text-sm">
+                    Главная
+                  </a>
+                  <a href="/auction" className="block text-gray-400 hover:text-gaming-yellow transition-colors text-sm">
+                    Аукционная рулетка
+                  </a>
+                  <a href="/about" className="block text-gray-400 hover:text-gaming-yellow transition-colors text-sm">
+                    О нас
+                  </a>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-white font-bold mb-3 flex items-center gap-2">
+                  <Icon name="Share2" size={18} className="text-gaming-yellow" />
+                  Соцсети
+                </h4>
+                <div className="flex flex-wrap gap-3">
+                  <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center hover:scale-110 transition-transform">
+                    <Icon name="Youtube" size={20} className="text-white" />
+                  </a>
+                  <a href="https://twitch.tv" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center hover:scale-110 transition-transform">
+                    <Icon name="Twitch" size={20} className="text-white" />
+                  </a>
+                  <a href="https://discord.gg" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center hover:scale-110 transition-transform">
+                    <Icon name="MessageSquare" size={20} className="text-white" />
+                  </a>
+                  <a href="https://t.me" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-sky-500 rounded-lg flex items-center justify-center hover:scale-110 transition-transform">
+                    <Icon name="Send" size={20} className="text-white" />
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-gaming-red/30 pt-6">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p className="text-gray-400 text-sm">© 2024 GameCorn Live. Все права защищены.</p>
+                <div className="flex items-center gap-4 text-gray-400 text-sm">
+                  <a href="/about" className="hover:text-gaming-yellow transition-colors">
+                    Контакты
+                  </a>
+                  <span>•</span>
+                  <a href="/about" className="hover:text-gaming-yellow transition-colors">
+                    Политика конфиденциальности
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </footer>
