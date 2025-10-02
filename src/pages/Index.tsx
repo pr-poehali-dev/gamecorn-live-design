@@ -16,7 +16,7 @@ import DonationWidget, { Donation } from '@/components/DonationWidget';
 import DonationAlert from '@/components/DonationAlert';
 import OAuthLogin from '@/components/OAuthLogin';
 import AdminPanel from '@/components/AdminPanel';
-import UserProfile from '@/components/UserProfile';
+import RestreamingPanel from '@/components/RestreamingPanel';
 
 interface Stream {
   id: number;
@@ -545,6 +545,15 @@ const Index = () => {
                     >
                       <Icon name={streamNotifications ? 'Bell' : 'BellOff'} size={18} />
                     </Button>
+                    <Button 
+                      onClick={() => setShowUserProfile(true)}
+                      variant="outline"
+                      size="sm"
+                      className="border-gaming-yellow/50 text-white hover:bg-gaming-yellow/30"
+                      title="Мультистрим"
+                    >
+                      <Icon name="Radio" size={18} />
+                    </Button>
                     <div className="flex items-center gap-2 bg-gaming-red/20 border border-gaming-red/50 rounded-lg px-4 py-2">
                       <Icon name="User" size={20} className="text-gaming-yellow" />
                       <span className="text-white font-bold">{username}</span>
@@ -746,6 +755,12 @@ const Index = () => {
         {showModeration && isLoggedIn && (userRole === 'owner' || userRole === 'moderator') && (
           <div className="container mx-auto px-4 py-6 animate-slide-up">
             <ModerationPanel userRole={userRole} />
+          </div>
+        )}
+
+        {showUserProfile && isLoggedIn && (
+          <div className="container mx-auto px-4 py-6 animate-slide-up">
+            <RestreamingPanel />
           </div>
         )}
 
