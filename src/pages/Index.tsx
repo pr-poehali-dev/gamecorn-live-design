@@ -14,6 +14,7 @@ import SubscriptionSystem from '@/components/SubscriptionSystem';
 import ModerationPanel from '@/components/ModerationPanel';
 import DonationWidget, { Donation } from '@/components/DonationWidget';
 import DonationAlert from '@/components/DonationAlert';
+import OAuthLogin from '@/components/OAuthLogin';
 
 interface Stream {
   id: number;
@@ -79,6 +80,7 @@ const Index = () => {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [currentDonationAlert, setCurrentDonationAlert] = useState<Donation | null>(null);
   const [showDonationWidget, setShowDonationWidget] = useState(false);
+  const [showOAuthLogin, setShowOAuthLogin] = useState(false);
 
   const upcomingStreams: Stream[] = [
     {
@@ -261,6 +263,17 @@ const Index = () => {
         setCurrentDonationAlert(nextDonation);
       }, 1000);
     }
+  };
+
+  const handleOAuthSuccess = (userData: { username: string; email: string; avatar?: string; provider: string }) => {
+    setIsLoggedIn(true);
+    setUsername(userData.username);
+    setUserRole('viewer');
+    setShowOAuthLogin(false);
+    
+    toast.success(`Добро пожаловать, ${userData.username}! 🎉`, {
+      description: `Вход через ${userData.provider}`
+    });
   };
 
   const handleLogin = () => {
@@ -520,59 +533,88 @@ const Index = () => {
                         ВОЙТИ
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="bg-gaming-dark border-gaming-red/50">
+                    <DialogContent className="bg-gaming-dark border-gaming-red/50 max-w-2xl max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle className="text-2xl text-gradient-fire">
                           {authMode === 'login' ? 'Вход' : 'Регистрация'}
                         </DialogTitle>
                       </DialogHeader>
-                      <div className="space-y-4">
-                        {authMode === 'register' && (
+                      
+                      {showOAuthLogin ? (
+                        <OAuthLogin 
+                          onSuccess={handleOAuthSuccess}
+                          onCancel={() => setShowOAuthLogin(false)}
+                        />
+                      ) : (
+                        <div className="space-y-4">
+                          {authMode === 'register' && (
+                            <div>
+                              <label className="text-white font-medium mb-2 block">Никнейм</label>
+                              <Input 
+                                value={registerUsername}
+                                onChange={(e) => setRegisterUsername(e.target.value)}
+                                placeholder="ProGamer123"
+                                className="bg-black/50 border-gaming-red/30 text-white"
+                              />
+                            </div>
+                          )}
                           <div>
-                            <label className="text-white font-medium mb-2 block">Никнейм</label>
+                            <label className="text-white font-medium mb-2 block">Email</label>
                             <Input 
-                              value={registerUsername}
-                              onChange={(e) => setRegisterUsername(e.target.value)}
-                              placeholder="ProGamer123"
+                              type="email"
+                              value={authMode === 'login' ? loginEmail : registerEmail}
+                              onChange={(e) => authMode === 'login' ? setLoginEmail(e.target.value) : setRegisterEmail(e.target.value)}
+                              placeholder="gamer@example.com"
                               className="bg-black/50 border-gaming-red/30 text-white"
                             />
                           </div>
-                        )}
-                        <div>
-                          <label className="text-white font-medium mb-2 block">Email</label>
-                          <Input 
-                            type="email"
-                            value={authMode === 'login' ? loginEmail : registerEmail}
-                            onChange={(e) => authMode === 'login' ? setLoginEmail(e.target.value) : setRegisterEmail(e.target.value)}
-                            placeholder="gamer@example.com"
-                            className="bg-black/50 border-gaming-red/30 text-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-white font-medium mb-2 block">Пароль</label>
-                          <Input 
-                            type="password"
-                            value={authMode === 'login' ? loginPassword : registerPassword}
-                            onChange={(e) => authMode === 'login' ? setLoginPassword(e.target.value) : setRegisterPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="bg-black/50 border-gaming-red/30 text-white"
-                          />
-                        </div>
-                        <Button 
-                          onClick={authMode === 'login' ? handleLogin : handleRegister}
-                          className="w-full bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold py-3"
-                        >
-                          {authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
-                        </Button>
-                        <div className="text-center">
-                          <button
-                            onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
-                            className="text-gaming-yellow hover:text-gaming-orange transition-colors font-medium"
+                          <div>
+                            <label className="text-white font-medium mb-2 block">Пароль</label>
+                            <Input 
+                              type="password"
+                              value={authMode === 'login' ? loginPassword : registerPassword}
+                              onChange={(e) => authMode === 'login' ? setLoginPassword(e.target.value) : setRegisterPassword(e.target.value)}
+                              placeholder="••••••••"
+                              className="bg-black/50 border-gaming-red/30 text-white"
+                            />
+                          </div>
+                          <Button 
+                            onClick={authMode === 'login' ? handleLogin : handleRegister}
+                            className="w-full bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold py-3"
                           >
-                            {authMode === 'login' ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
-                          </button>
+                            {authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
+                          </Button>
+
+                          <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                              <span className="w-full border-t border-gaming-red/30" />
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                              <span className="bg-gaming-dark px-2 text-gray-400">
+                                Или
+                              </span>
+                            </div>
+                          </div>
+
+                          <Button
+                            onClick={() => setShowOAuthLogin(true)}
+                            variant="outline"
+                            className="w-full border-gaming-yellow/50 hover:bg-gaming-yellow/10 text-white font-bold"
+                          >
+                            <Icon name="Shield" className="mr-2" size={20} />
+                            Войти через соцсети
+                          </Button>
+
+                          <div className="text-center">
+                            <button
+                              onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+                              className="text-gaming-yellow hover:text-gaming-orange transition-colors font-medium"
+                            >
+                              {authMode === 'login' ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
+                            </button>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </DialogContent>
                   </Dialog>
                 )}
