@@ -379,16 +379,27 @@ const Index = () => {
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <img 
-                  src="/img/b5ff3fd1-73c8-4659-b7fb-c8cb106822c5.jpg" 
-                  alt="GameCorn Live"
-                  className="w-16 h-16 rounded-full border-4 border-gaming-red shadow-lg shadow-gaming-red/50"
-                />
+                <a href="/">
+                  <img 
+                    src="/img/b5ff3fd1-73c8-4659-b7fb-c8cb106822c5.jpg" 
+                    alt="GameCorn Live"
+                    className="w-16 h-16 rounded-full border-4 border-gaming-red shadow-lg shadow-gaming-red/50 hover:scale-110 transition-transform cursor-pointer"
+                  />
+                </a>
                 <div>
-                  <h1 className="text-3xl font-black text-gradient-fire glow-red">
-                    GAMECORN LIVE
-                  </h1>
-                  <p className="text-gaming-yellow text-sm font-medium">Игровые стримы каждый день</p>
+                  <a href="/">
+                    <h1 className="text-3xl font-black text-gradient-fire glow-red hover:scale-105 transition-transform cursor-pointer">
+                      GAMECORN LIVE
+                    </h1>
+                  </a>
+                  <div className="flex items-center gap-3">
+                    <p className="text-gaming-yellow text-sm font-medium">Игровые стримы каждый день</p>
+                    <span className="text-gray-500">•</span>
+                    <a href="/auction" className="text-gaming-orange text-sm font-bold hover:text-gaming-yellow transition-colors flex items-center gap-1">
+                      <Icon name="Target" size={16} />
+                      Аукцион
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -729,10 +740,18 @@ const Index = () => {
           </div>
 
           <div className="mb-12 animate-slide-up">
-            <h3 className="text-3xl font-black text-gradient-fire glow-yellow mb-6 flex items-center gap-3">
-              <Icon name="Flame" size={32} className="text-gaming-orange" />
-              Последние донаты
-            </h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-3xl font-black text-gradient-fire glow-yellow flex items-center gap-3">
+                <Icon name="Flame" size={32} className="text-gaming-orange" />
+                Последние донаты
+              </h3>
+              <a href="/auction">
+                <Button className="bg-gradient-to-r from-gaming-yellow to-gaming-orange hover:from-gaming-yellow/80 hover:to-gaming-orange/80 text-black font-bold">
+                  <Icon name="Target" className="mr-2" size={20} />
+                  Аукционная рулетка
+                </Button>
+              </a>
+            </div>
             <div className="grid md:grid-cols-3 gap-4">
               {recentDonations.map((donation, index) => (
                 <Card 
