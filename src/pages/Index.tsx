@@ -32,6 +32,14 @@ const Index = () => {
   const [donationName, setDonationName] = useState('');
   const [donationMessage, setDonationMessage] = useState('');
   const [selectedVideo, setSelectedVideo] = useState<Stream | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [registerUsername, setRegisterUsername] = useState('');
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [recentDonations, setRecentDonations] = useState<DonationAlert[]>([
     { id: 1, name: 'ProGamer99', amount: 500, message: 'Лучший стример! 🔥' },
     { id: 2, name: 'MegaFan', amount: 1000, message: 'За новое оборудование!' },
@@ -163,6 +171,37 @@ const Index = () => {
     setDonationMessage('');
   };
 
+  const handleLogin = () => {
+    if (!loginEmail || !loginPassword) {
+      toast.error('Заполните все поля!');
+      return;
+    }
+    setIsLoggedIn(true);
+    setUsername(loginEmail.split('@')[0]);
+    toast.success('Вы успешно вошли!');
+    setLoginEmail('');
+    setLoginPassword('');
+  };
+
+  const handleRegister = () => {
+    if (!registerEmail || !registerPassword || !registerUsername) {
+      toast.error('Заполните все поля!');
+      return;
+    }
+    setIsLoggedIn(true);
+    setUsername(registerUsername);
+    toast.success('Регистрация успешна! Добро пожаловать!');
+    setRegisterEmail('');
+    setRegisterPassword('');
+    setRegisterUsername('');
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUsername('');
+    toast.success('Вы вышли из аккаунта');
+  };
+
   return (
     <div className="min-h-screen bg-gaming-dark">
       <div 
@@ -193,6 +232,86 @@ const Index = () => {
               </div>
 
               <div className="flex items-center gap-4">
+                {isLoggedIn ? (
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 bg-gaming-red/20 border border-gaming-red/50 rounded-lg px-4 py-2">
+                      <Icon name="User" size={20} className="text-gaming-yellow" />
+                      <span className="text-white font-bold">{username}</span>
+                    </div>
+                    <Button 
+                      onClick={handleLogout}
+                      variant="outline" 
+                      className="border-gaming-red/50 text-white hover:bg-gaming-red/20"
+                    >
+                      <Icon name="LogOut" className="mr-2" size={18} />
+                      Выйти
+                    </Button>
+                  </div>
+                ) : (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="bg-gradient-to-r from-gaming-yellow to-gaming-orange hover:from-gaming-yellow/80 hover:to-gaming-orange/80 text-black font-bold px-6 py-3">
+                        <Icon name="User" className="mr-2" size={20} />
+                        ВОЙТИ
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-gaming-dark border-gaming-red/50">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl text-gradient-fire">
+                          {authMode === 'login' ? 'Вход' : 'Регистрация'}
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        {authMode === 'register' && (
+                          <div>
+                            <label className="text-white font-medium mb-2 block">Никнейм</label>
+                            <Input 
+                              value={registerUsername}
+                              onChange={(e) => setRegisterUsername(e.target.value)}
+                              placeholder="ProGamer123"
+                              className="bg-black/50 border-gaming-red/30 text-white"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <label className="text-white font-medium mb-2 block">Email</label>
+                          <Input 
+                            type="email"
+                            value={authMode === 'login' ? loginEmail : registerEmail}
+                            onChange={(e) => authMode === 'login' ? setLoginEmail(e.target.value) : setRegisterEmail(e.target.value)}
+                            placeholder="gamer@example.com"
+                            className="bg-black/50 border-gaming-red/30 text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-white font-medium mb-2 block">Пароль</label>
+                          <Input 
+                            type="password"
+                            value={authMode === 'login' ? loginPassword : registerPassword}
+                            onChange={(e) => authMode === 'login' ? setLoginPassword(e.target.value) : setRegisterPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="bg-black/50 border-gaming-red/30 text-white"
+                          />
+                        </div>
+                        <Button 
+                          onClick={authMode === 'login' ? handleLogin : handleRegister}
+                          className="w-full bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold py-3"
+                        >
+                          {authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
+                        </Button>
+                        <div className="text-center">
+                          <button
+                            onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+                            className="text-gaming-yellow hover:text-gaming-orange transition-colors font-medium"
+                          >
+                            {authMode === 'login' ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
+                          </button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
+
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button className="bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold px-6 py-3 animate-pulse-glow">
