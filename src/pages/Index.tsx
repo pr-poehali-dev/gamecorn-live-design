@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
+import YouTubeSettings from '@/components/YouTubeSettings';
 
 interface Stream {
   id: number;
@@ -53,6 +54,10 @@ const Index = () => {
   const [newComment, setNewComment] = useState('');
   const [likedStreams, setLikedStreams] = useState<Set<number>>(new Set());
   const [streamNotifications, setStreamNotifications] = useState(true);
+  const [showLivePlayer, setShowLivePlayer] = useState(false);
+  const [youtubeVideoId, setYoutubeVideoId] = useState('jfKfPfyJRdk');
+  const [playingArchiveVideo, setPlayingArchiveVideo] = useState<number | null>(null);
+  const [showYouTubeSettings, setShowYouTubeSettings] = useState(false);
   const [recentDonations, setRecentDonations] = useState<DonationAlert[]>([
     { id: 1, name: 'ProGamer99', amount: 500, message: 'Лучший стример! 🔥' },
     { id: 2, name: 'MegaFan', amount: 1000, message: 'За новое оборудование!' },
@@ -345,6 +350,13 @@ const Index = () => {
                 {isLoggedIn ? (
                   <div className="flex items-center gap-4">
                     <Button
+                      onClick={() => setShowYouTubeSettings(!showYouTubeSettings)}
+                      variant="outline"
+                      className="border-gaming-orange/50 text-white hover:bg-gaming-orange/20"
+                    >
+                      <Icon name="Settings" size={20} />
+                    </Button>
+                    <Button
                       onClick={toggleNotifications}
                       variant="outline"
                       className={`border-gaming-yellow/50 ${streamNotifications ? 'bg-gaming-yellow/20 text-gaming-yellow' : 'text-white'} hover:bg-gaming-yellow/30`}
@@ -483,24 +495,54 @@ const Index = () => {
           </div>
         </nav>
 
+        {showYouTubeSettings && isLoggedIn && (
+          <div className="container mx-auto px-4 py-6 animate-slide-up">
+            <YouTubeSettings 
+              currentVideoId={youtubeVideoId}
+              onVideoIdChange={(newId) => {
+                setYoutubeVideoId(newId);
+                setShowLivePlayer(false);
+              }}
+            />
+          </div>
+        )}
+
         <section className="container mx-auto px-4 py-12">
           <div className="bg-gradient-to-br from-gaming-red/20 via-gaming-orange/20 to-gaming-yellow/20 rounded-2xl p-8 border-2 border-gaming-red/50 mb-12 animate-fade-in">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div className="relative group cursor-pointer">
                 <div className="absolute -inset-1 bg-gradient-to-r from-gaming-red via-gaming-orange to-gaming-yellow rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300 animate-pulse-glow"></div>
-                <img 
-                  src={liveStream.thumbnail}
-                  alt={liveStream.title}
-                  className="relative rounded-xl w-full aspect-video object-cover"
-                />
-                <Badge className="absolute top-4 left-4 bg-gaming-red text-white font-bold px-4 py-2 text-lg animate-pulse">
-                  <Icon name="Radio" className="mr-2 animate-pulse" size={16} />
-                  LIVE
-                </Badge>
-                <Badge className="absolute top-4 right-4 bg-black/70 text-white font-bold px-4 py-2">
-                  <Icon name="Eye" className="mr-2" size={16} />
-                  {liveStream.viewers?.toLocaleString()}
-                </Badge>
+                {showLivePlayer ? (
+                  <div className="relative rounded-xl overflow-hidden aspect-video bg-black">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&fs=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}&quality=hd1080`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      title="Live Stream"
+                    />
+                    <Badge className="absolute top-4 left-4 bg-gaming-red text-white font-bold px-4 py-2 text-lg animate-pulse z-10">
+                      <Icon name="Radio" className="mr-2 animate-pulse" size={16} />
+                      LIVE
+                    </Badge>
+                  </div>
+                ) : (
+                  <>
+                    <img 
+                      src={liveStream.thumbnail}
+                      alt={liveStream.title}
+                      className="relative rounded-xl w-full aspect-video object-cover"
+                    />
+                    <Badge className="absolute top-4 left-4 bg-gaming-red text-white font-bold px-4 py-2 text-lg animate-pulse">
+                      <Icon name="Radio" className="mr-2 animate-pulse" size={16} />
+                      LIVE
+                    </Badge>
+                    <Badge className="absolute top-4 right-4 bg-black/70 text-white font-bold px-4 py-2">
+                      <Icon name="Eye" className="mr-2" size={16} />
+                      {liveStream.viewers?.toLocaleString()}
+                    </Badge>
+                  </>
+                )}
               </div>
 
               <div className="space-y-6">
@@ -518,6 +560,7 @@ const Index = () => {
 
                 <div className="flex gap-3">
                   <Button 
+                    onClick={() => setShowLivePlayer(true)}
                     size="lg" 
                     className="bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold px-8 py-6 text-xl flex-1"
                   >
@@ -717,21 +760,34 @@ const Index = () => {
             </DialogHeader>
             {selectedVideo && (
               <div className="space-y-4">
-                <div className="relative rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center">
-                  <img 
-                    src={selectedVideo.thumbnail}
-                    alt={selectedVideo.title}
-                    className="w-full h-full object-cover opacity-50"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Button 
-                      size="lg"
-                      className="bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold px-12 py-8 text-2xl rounded-full"
-                    >
-                      <Icon name="Play" className="mr-3" size={32} />
-                      Смотреть
-                    </Button>
-                  </div>
+                <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
+                  {playingArchiveVideo === selectedVideo.id ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&fs=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}&quality=hd1080`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      title="Archive Stream"
+                    />
+                  ) : (
+                    <>
+                      <img 
+                        src={selectedVideo.thumbnail}
+                        alt={selectedVideo.title}
+                        className="w-full h-full object-cover opacity-50"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Button 
+                          onClick={() => setPlayingArchiveVideo(selectedVideo.id)}
+                          size="lg"
+                          className="bg-gradient-to-r from-gaming-red to-gaming-orange hover:from-gaming-red/80 hover:to-gaming-orange/80 text-white font-bold px-12 py-8 text-2xl rounded-full"
+                        >
+                          <Icon name="Play" className="mr-3" size={32} />
+                          Смотреть
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div className="flex items-center gap-4 flex-wrap">
