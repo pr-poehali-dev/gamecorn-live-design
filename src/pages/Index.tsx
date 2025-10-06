@@ -17,6 +17,7 @@ import DonationAlert from '@/components/DonationAlert';
 import OAuthLogin from '@/components/OAuthLogin';
 import AdminPanel from '@/components/AdminPanel';
 import RestreamingPanel from '@/components/RestreamingPanel';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Stream {
   id: number;
@@ -51,13 +52,11 @@ interface DonationAlert {
 }
 
 const Index = () => {
+  const { isLoggedIn, username, userRole, login, register, logout, setUserRole } = useAuth();
   const [donationAmount, setDonationAmount] = useState('');
   const [donationName, setDonationName] = useState('');
   const [donationMessage, setDonationMessage] = useState('');
   const [selectedVideo, setSelectedVideo] = useState<Stream | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState('');
-  const [userRole, setUserRole] = useState<UserRole>('viewer');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
@@ -269,10 +268,8 @@ const Index = () => {
     }
   };
 
-  const handleOAuthSuccess = (userData: { username: string; email: string; avatar?: string; provider: string }) => {
-    setIsLoggedIn(true);
-    setUsername(userData.username);
-    setUserRole('viewer');
+  const handleOAuthSuccess = async (userData: { username: string; email: string; avatar?: string; provider: string }) => {
+    await register(userData.email, '', userData.username);
     setShowOAuthLogin(false);
     
     toast.success(`Добро пожаловать, ${userData.username}! 🎉`, {
@@ -280,82 +277,75 @@ const Index = () => {
     });
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!loginEmail || !loginPassword) {
       toast.error('Заполните все поля!');
       return;
     }
 
-    const adminEmail = 'hawks_tv@outlook.com';
-    const adminPassword = '1l1e1x1a11A';
-
-    if (loginEmail.toLowerCase() === adminEmail && loginPassword === adminPassword) {
-      setIsLoggedIn(true);
-      setUsername('Hawks_TV');
-      setUserRole('owner');
+    try {
+      await login(loginEmail, loginPassword);
+      
+      const adminEmail = 'hawks_tv@outlook.com';
+      const adminPassword = '1l1e1x1a11A';
+      
+      if (loginEmail.toLowerCase() === adminEmail && loginPassword === adminPassword) {
+        toast.success('🎉 Добро пожаловать, Администратор! 👑', {
+          description: 'Полный доступ ко всем функциям управления сайтом',
+          duration: 5000,
+        });
+      } else {
+        const name = loginEmail.split('@')[0];
+        
+        if (loginEmail.includes('owner') || loginEmail.includes('admin')) {
+          toast.success(`Владелец канала ${name} вошел в систему! 👑`, {
+            description: 'Полный доступ ко всем функциям'
+          });
+        } else if (loginEmail.includes('mod')) {
+          toast.success(`Модератор ${name} на связи! 🛡️`, {
+            description: 'Управление чатом активно'
+          });
+        } else if (loginEmail.includes('vip')) {
+          toast.success(`VIP ${name} присоединился! ⭐`, {
+            description: 'Эксклюзивные привилегии активны'
+          });
+        } else if (loginEmail.includes('sub')) {
+          toast.success(`Подписчик ${name} в эфире! 💎`, {
+            description: 'Спасибо за поддержку канала!'
+          });
+        } else {
+          toast.success(`Добро пожаловать, ${name}! 🎮`);
+        }
+      }
+      
       setLoginEmail('');
       setLoginPassword('');
-      
-      toast.success('🎉 Добро пожаловать, Администратор! 👑', {
-        description: 'Полный доступ ко всем функциям управления сайтом',
-        duration: 5000,
-      });
-      return;
+    } catch (error) {
+      toast.error('Ошибка входа. Попробуйте снова.');
     }
-
-    setIsLoggedIn(true);
-    const name = loginEmail.split('@')[0];
-    setUsername(name);
-    
-    if (loginEmail.includes('owner') || loginEmail.includes('admin')) {
-      setUserRole('owner');
-      toast.success(`Владелец канала ${name} вошел в систему! 👑`, {
-        description: 'Полный доступ ко всем функциям'
-      });
-    } else if (loginEmail.includes('mod')) {
-      setUserRole('moderator');
-      toast.success(`Модератор ${name} на связи! 🛡️`, {
-        description: 'Управление чатом активно'
-      });
-    } else if (loginEmail.includes('vip')) {
-      setUserRole('vip');
-      toast.success(`VIP ${name} присоединился! ⭐`, {
-        description: 'Эксклюзивные привилегии активны'
-      });
-    } else if (loginEmail.includes('sub')) {
-      setUserRole('subscriber');
-      toast.success(`Подписчик ${name} в эфире! 💎`, {
-        description: 'Спасибо за поддержку канала!'
-      });
-    } else {
-      setUserRole('viewer');
-      toast.success(`Добро пожаловать, ${name}! 🎮`);
-    }
-    
-    setLoginEmail('');
-    setLoginPassword('');
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!registerEmail || !registerPassword || !registerUsername) {
       toast.error('Заполните все поля!');
       return;
     }
-    setIsLoggedIn(true);
-    setUsername(registerUsername);
-    setUserRole('viewer'); // Новые пользователи начинают как зрители
-    toast.success(`Регистрация успешна! Добро пожаловать, ${registerUsername}! 🎉`, {
-      description: 'Подпишитесь на канал для дополнительных привилегий!'
-    });
-    setRegisterEmail('');
-    setRegisterPassword('');
-    setRegisterUsername('');
+    
+    try {
+      await register(registerEmail, registerPassword, registerUsername);
+      toast.success(`Регистрация успешна! Добро пожаловать, ${registerUsername}! 🎉`, {
+        description: 'Подпишитесь на канал для дополнительных привилегий!'
+      });
+      setRegisterEmail('');
+      setRegisterPassword('');
+      setRegisterUsername('');
+    } catch (error) {
+      toast.error('Ошибка регистрации. Попробуйте снова.');
+    }
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername('');
-    setUserRole('viewer');
+    logout();
     toast.success('Вы вышли из аккаунта');
   };
 
@@ -718,7 +708,7 @@ const Index = () => {
 
         {showAdminPanel && isLoggedIn && userRole === 'owner' && username === 'Hawks_TV' && (
           <div className="container mx-auto px-4 py-6 animate-slide-up">
-            <AdminPanel userEmail={loginEmail || 'hawks_tv@outlook.com'} />
+            <AdminPanel userEmail='hawks_tv@outlook.com' />
           </div>
         )}
 

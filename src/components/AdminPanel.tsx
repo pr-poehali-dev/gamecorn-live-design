@@ -10,6 +10,9 @@ import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import TwoFactorAuth from './TwoFactorAuth';
 import AnalyticsDashboard from './AnalyticsDashboard';
+import SiteSettingsPanel from './SiteSettingsPanel';
+import AuctionSettings from './AuctionSettings';
+import RouletteSettings from './RouletteSettings';
 
 interface AdminPanelProps {
   userEmail: string;
@@ -98,10 +101,22 @@ const AdminPanel = ({ userEmail }: AdminPanelProps) => {
       </Card>
 
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid grid-cols-2 md:grid-cols-6 gap-2 bg-black/50 p-2">
+        <TabsList className="grid grid-cols-3 md:grid-cols-9 gap-2 bg-black/50 p-2">
           <TabsTrigger value="general" className="data-[state=active]:bg-gaming-red">
             <Icon name="Settings" size={16} className="mr-2" />
             Основные
+          </TabsTrigger>
+          <TabsTrigger value="appearance" className="data-[state=active]:bg-gaming-red">
+            <Icon name="Palette" size={16} className="mr-2" />
+            Внешний вид
+          </TabsTrigger>
+          <TabsTrigger value="auction" className="data-[state=active]:bg-gaming-red">
+            <Icon name="Gavel" size={16} className="mr-2" />
+            Аукцион
+          </TabsTrigger>
+          <TabsTrigger value="roulette" className="data-[state=active]:bg-gaming-red">
+            <Icon name="Disc" size={16} className="mr-2" />
+            Рулетка
           </TabsTrigger>
           <TabsTrigger value="features" className="data-[state=active]:bg-gaming-red">
             <Icon name="Zap" size={16} className="mr-2" />
@@ -364,6 +379,18 @@ const AdminPanel = ({ userEmail }: AdminPanelProps) => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="appearance" className="space-y-4">
+          <SiteSettingsPanel />
+        </TabsContent>
+
+        <TabsContent value="auction" className="space-y-4">
+          <AuctionSettings />
+        </TabsContent>
+
+        <TabsContent value="roulette" className="space-y-4">
+          <RouletteSettings />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
