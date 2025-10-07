@@ -13,6 +13,12 @@ import AnalyticsDashboard from './AnalyticsDashboard';
 import SiteSettingsPanel from './SiteSettingsPanel';
 import AuctionSettings from './AuctionSettings';
 import RouletteSettings from './RouletteSettings';
+import ContentEditor from './ContentEditor';
+import NavigationEditor from './NavigationEditor';
+import DomainSettings from './DomainSettings';
+import MediaManager from './MediaManager';
+import TextEditor from './TextEditor';
+import IntegrationSettings from './IntegrationSettings';
 
 interface AdminPanelProps {
   userEmail: string;
@@ -101,14 +107,38 @@ const AdminPanel = ({ userEmail }: AdminPanelProps) => {
       </Card>
 
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid grid-cols-3 md:grid-cols-9 gap-2 bg-black/50 p-2">
+        <TabsList className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-12 gap-2 bg-black/50 p-2">
           <TabsTrigger value="general" className="data-[state=active]:bg-gaming-red">
             <Icon name="Settings" size={16} className="mr-2" />
             Основные
           </TabsTrigger>
+          <TabsTrigger value="domain" className="data-[state=active]:bg-gaming-red">
+            <Icon name="Globe" size={16} className="mr-2" />
+            Домен/SEO
+          </TabsTrigger>
           <TabsTrigger value="appearance" className="data-[state=active]:bg-gaming-red">
             <Icon name="Palette" size={16} className="mr-2" />
             Внешний вид
+          </TabsTrigger>
+          <TabsTrigger value="content" className="data-[state=active]:bg-gaming-red">
+            <Icon name="FileText" size={16} className="mr-2" />
+            Контент
+          </TabsTrigger>
+          <TabsTrigger value="navigation" className="data-[state=active]:bg-gaming-red">
+            <Icon name="Menu" size={16} className="mr-2" />
+            Навигация
+          </TabsTrigger>
+          <TabsTrigger value="texts" className="data-[state=active]:bg-gaming-red">
+            <Icon name="Type" size={16} className="mr-2" />
+            Тексты
+          </TabsTrigger>
+          <TabsTrigger value="media" className="data-[state=active]:bg-gaming-red">
+            <Icon name="Image" size={16} className="mr-2" />
+            Медиа
+          </TabsTrigger>
+          <TabsTrigger value="integrations" className="data-[state=active]:bg-gaming-red">
+            <Icon name="Plug" size={16} className="mr-2" />
+            Интеграции
           </TabsTrigger>
           <TabsTrigger value="auction" className="data-[state=active]:bg-gaming-red">
             <Icon name="Gavel" size={16} className="mr-2" />
@@ -118,10 +148,6 @@ const AdminPanel = ({ userEmail }: AdminPanelProps) => {
             <Icon name="Disc" size={16} className="mr-2" />
             Рулетка
           </TabsTrigger>
-          <TabsTrigger value="features" className="data-[state=active]:bg-gaming-red">
-            <Icon name="Zap" size={16} className="mr-2" />
-            Функции
-          </TabsTrigger>
           <TabsTrigger value="analytics" className="data-[state=active]:bg-gaming-red">
             <Icon name="BarChart3" size={16} className="mr-2" />
             Аналитика
@@ -129,14 +155,6 @@ const AdminPanel = ({ userEmail }: AdminPanelProps) => {
           <TabsTrigger value="security" className="data-[state=active]:bg-gaming-red">
             <Icon name="Shield" size={16} className="mr-2" />
             Безопасность
-          </TabsTrigger>
-          <TabsTrigger value="moderation" className="data-[state=active]:bg-gaming-red">
-            <Icon name="ShieldAlert" size={16} className="mr-2" />
-            Модерация
-          </TabsTrigger>
-          <TabsTrigger value="system" className="data-[state=active]:bg-gaming-red">
-            <Icon name="Server" size={16} className="mr-2" />
-            Система
           </TabsTrigger>
         </TabsList>
 
@@ -381,8 +399,32 @@ const AdminPanel = ({ userEmail }: AdminPanelProps) => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="domain" className="space-y-4">
+          <DomainSettings />
+        </TabsContent>
+
         <TabsContent value="appearance" className="space-y-4">
           <SiteSettingsPanel />
+        </TabsContent>
+
+        <TabsContent value="content" className="space-y-4">
+          <ContentEditor />
+        </TabsContent>
+
+        <TabsContent value="navigation" className="space-y-4">
+          <NavigationEditor />
+        </TabsContent>
+
+        <TabsContent value="texts" className="space-y-4">
+          <TextEditor />
+        </TabsContent>
+
+        <TabsContent value="media" className="space-y-4">
+          <MediaManager />
+        </TabsContent>
+
+        <TabsContent value="integrations" className="space-y-4">
+          <IntegrationSettings />
         </TabsContent>
 
         <TabsContent value="auction" className="space-y-4">
