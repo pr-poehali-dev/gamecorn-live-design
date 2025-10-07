@@ -18,6 +18,9 @@ import DomainSettings from './DomainSettings';
 import MediaManager from './MediaManager';
 import TextEditor from './TextEditor';
 import IntegrationSettings from './IntegrationSettings';
+import GlobalSiteSettings from './GlobalSiteSettings';
+import AboutPageEditor from './AboutPageEditor';
+import SettingsHelp from './SettingsHelp';
 
 interface AdminPanelProps {
   userEmail: string;
@@ -95,8 +98,13 @@ const AdminPanel = ({ userEmail }: AdminPanelProps) => {
     <div className="space-y-6 max-w-6xl mx-auto">
       <AdminPanelHeader userEmail={userEmail} />
 
-      <Tabs defaultValue="general" className="w-full">
+      <Tabs defaultValue="global" className="w-full">
         <AdminPanelTabs />
+
+        <TabsContent value="global" className="space-y-4">
+          <SettingsHelp />
+          <GlobalSiteSettings />
+        </TabsContent>
 
         <TabsContent value="general" className="space-y-4">
           <GeneralSettings

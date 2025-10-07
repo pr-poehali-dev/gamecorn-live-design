@@ -4,12 +4,16 @@ import Icon from '@/components/ui/icon';
 const AdminPanelTabs = () => {
   return (
     <TabsList className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-12 gap-2 bg-black/50 p-2">
+      <TabsTrigger value="global" className="data-[state=active]:bg-gaming-yellow data-[state=active]:text-black">
+        <Icon name="Globe" size={16} className="mr-2" />
+        Глобальные
+      </TabsTrigger>
       <TabsTrigger value="general" className="data-[state=active]:bg-gaming-red">
         <Icon name="Settings" size={16} className="mr-2" />
         Основные
       </TabsTrigger>
       <TabsTrigger value="domain" className="data-[state=active]:bg-gaming-red">
-        <Icon name="Globe" size={16} className="mr-2" />
+        <Icon name="Link" size={16} className="mr-2" />
         Домен/SEO
       </TabsTrigger>
       <TabsTrigger value="appearance" className="data-[state=active]:bg-gaming-red">

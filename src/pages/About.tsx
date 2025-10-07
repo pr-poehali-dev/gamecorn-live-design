@@ -7,6 +7,7 @@ import PageSettingsCard from './about/PageSettingsCard';
 import SocialLinksCard from './about/SocialLinksCard';
 import NavigationCard from './about/NavigationCard';
 import ContactCard from './about/ContactCard';
+import AboutPageEditor from '@/components/AboutPageEditor';
 
 type UserRole = 'owner' | 'moderator' | 'vip' | 'subscriber' | 'viewer';
 
@@ -205,54 +206,60 @@ const About = () => {
       />
 
       <div className="container mx-auto px-4 py-12">
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <OwnerCard
+        {showSettings && canManageSettings ? (
+          <div className="max-w-5xl mx-auto">
+            <AboutPageEditor
               ownerInfo={ownerInfo}
-              showSettings={showSettings}
-              canManageSettings={canManageSettings}
-              editName={editName}
-              setEditName={setEditName}
-              editRealName={editRealName}
-              setEditRealName={setEditRealName}
-              editDescription={editDescription}
-              setEditDescription={setEditDescription}
-              editEmail={editEmail}
-              setEditEmail={setEditEmail}
-              onSave={saveOwnerInfo}
-            />
-
-            <StatisticsCard siteStats={siteStats} />
-
-            {showSettings && canManageSettings && (
-              <PageSettingsCard
-                pageSettings={pageSettings}
-                onUpdate={updatePageSettings}
-              />
-            )}
-          </div>
-
-          <div className="space-y-6">
-            <SocialLinksCard
               socialLinks={socialLinks}
-              showSettings={showSettings}
-              canManageSettings={canManageSettings}
-              editingSocial={editingSocial}
-              editSocialUrl={editSocialUrl}
-              setEditingSocial={setEditingSocial}
-              setEditSocialUrl={setEditSocialUrl}
-              onToggleLink={toggleSocialLink}
-              onSaveUrl={saveSocialUrl}
-            />
-
-            <NavigationCard />
-
-            <ContactCard
-              email={ownerInfo.email}
-              location={ownerInfo.location}
+              pageSettings={pageSettings}
+              onUpdateOwner={setOwnerInfo}
+              onUpdateSocialLinks={setSocialLinks}
+              onUpdatePageSettings={setPageSettings}
             />
           </div>
-        </div>
+        ) : (
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <OwnerCard
+                ownerInfo={ownerInfo}
+                showSettings={showSettings}
+                canManageSettings={canManageSettings}
+                editName={editName}
+                setEditName={setEditName}
+                editRealName={editRealName}
+                setEditRealName={setEditRealName}
+                editDescription={editDescription}
+                setEditDescription={setEditDescription}
+                editEmail={editEmail}
+                setEditEmail={setEditEmail}
+                onSave={saveOwnerInfo}
+              />
+
+              {pageSettings.showStatistics && <StatisticsCard siteStats={siteStats} />}
+            </div>
+
+            <div className="space-y-6">
+              <SocialLinksCard
+                socialLinks={socialLinks}
+                showSettings={showSettings}
+                canManageSettings={canManageSettings}
+                editingSocial={editingSocial}
+                editSocialUrl={editSocialUrl}
+                setEditingSocial={setEditingSocial}
+                setEditSocialUrl={setEditSocialUrl}
+                onToggleLink={toggleSocialLink}
+                onSaveUrl={saveSocialUrl}
+              />
+
+              <NavigationCard />
+
+              <ContactCard
+                email={ownerInfo.email}
+                location={ownerInfo.location}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

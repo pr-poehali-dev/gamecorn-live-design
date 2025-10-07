@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { SiteConfigProvider } from "./contexts/SiteConfigContext";
+import { SiteSettingsProvider } from "./context/SiteSettingsContext";
 import Index from "./pages/Index";
 import Auction from "./pages/Auction";
 import About from "./pages/About";
@@ -18,20 +19,22 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <SiteConfigProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auction" element={<Auction />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/stream-overlay" element={<StreamOverlay />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+        <SiteSettingsProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auction" element={<Auction />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/stream-overlay" element={<StreamOverlay />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </SiteSettingsProvider>
       </SiteConfigProvider>
     </AuthProvider>
   </QueryClientProvider>
