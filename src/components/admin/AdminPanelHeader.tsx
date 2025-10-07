@@ -14,7 +14,7 @@ const AdminPanelHeader = ({ userEmail }: AdminPanelHeaderProps) => {
           Панель администратора
         </CardTitle>
         <CardDescription className="text-white/80">
-          Полный доступ к управлению сайтом • {Hawks_tv@outlook.com}
+          Полный доступ к управлению сайтом • {userEmail}
         </CardDescription>
       </CardHeader>
     </Card>
